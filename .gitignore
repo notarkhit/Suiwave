@@ -1,1 +1,48 @@
+# Project-specific
 reference/
+todo.md
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+*.iml
+
+# Generated code (drift, riverpod)
+*.g.dart
+*.freezed.dart
+
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+android/app/debug/
+android/app/release/
+android/app/profile/
+android/captures/
+.gradle/
+*.keystore
+!debug.keystore
+
+# Linux desktop
+linux/flutter/ephemeral/
+
+# Windows desktop
+windows/flutter/ephemeral/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
