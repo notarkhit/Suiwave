@@ -1,0 +1,67 @@
+name: suiwave
+description: "A free and open source music player."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Audio (ExoPlayer on Android, media_kit on Linux)
+  just_audio: ^0.9.42
+  audio_service: ^0.18.15
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Database
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Network
+  dio: ^5.8.0+1
+
+  # Images
+  cached_network_image: ^3.4.1
+
+  # Metadata
+  audio_metadata_reader: ^1.6.0
+
+  # Theme / color
+  palette_generator: ^0.3.3+4
+  dynamic_color: ^1.7.0
+
+  # UI
+  shimmer: ^3.0.0
+  google_fonts: ^6.2.1
+
+  # Storage
+  shared_preferences: ^2.3.5
+
+  # File picking
+  file_picker: ^8.3.7
+
+  # Utilities
+  collection: ^1.19.1
+  intl: ^0.20.2
+  rxdart: ^0.28.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  drift_dev: ^2.22.1
+  riverpod_generator: ^2.6.1
+
+flutter:
+  uses-material-design: true
