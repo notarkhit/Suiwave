@@ -1,150 +1,56 @@
+import 'dart:ffi';
+import 'dart:io';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:media_kit/media_kit.dart';
+import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
+
+// Native setlocale for Linux locale fix required by media_kit
+typedef SetlocaleCFunc = Pointer<Char> Function(Int32, Pointer<Char>);
+typedef SetlocaleFunc = Pointer<Char> Function(int, Pointer<Char>);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // media_kit requires the C numeric locale on Linux
+  if (Platform.isLinux) {
+    final libc = DynamicLibrary.open('libc.so.6');
+    final setlocale = libc.lookupFunction<SetlocaleCFunc, SetlocaleFunc>('setlocale');
+    final cLocale = malloc.allocate<Char>(2);
+    cLocale[0] = 0x43; // 'C'
+    cLocale[1] = 0x00; // null terminator
+    setlocale(1, cLocale);
+    malloc.free(cLocale);
+  }
+
+  // Initialize media_kit (required before any Player is created)
+  MediaKit.ensureInitialized();
+
+  // Prefer edge-to-edge on Android
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+  ));
+
   runApp(const ProviderScope(child: SuiwaveApp()));
 }
 
-class SuiwaveApp extends ConsumerWidget {
+class SuiwaveApp extends StatelessWidget {
   const SuiwaveApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
       title: 'Suiwave',
       debugShowCheckedModeBanner: false,
+      routerConfig: appRouter,
+      theme: AppTheme.darkTheme(),
+      darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.dark,
-      darkTheme: _buildDarkTheme(),
-      theme: _buildDarkTheme(),
-      home: const _SplashScreen(),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    const seedColor = Color(0xFFED5564);
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: const Color(0xFF0D0D0D),
-      onSurface: Colors.white,
-    );
-
-    final base = ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
-    );
-
-    return base.copyWith(
-      textTheme: GoogleFonts.nunitoTextTheme(base.textTheme).apply(
-        bodyColor: Colors.white,
-        displayColor: Colors.white,
-      ),
-    );
-  }
-}
-
-class _SplashScreen extends StatefulWidget {
-  const _SplashScreen();
-
-  @override
-  State<_SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<_SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fade;
-  late Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6)),
-    );
-    _scale = Tween<double>(begin: 0.88, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOutCubic),
-      ),
-    );
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: cs.surface,
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          return Opacity(
-            opacity: _fade.value,
-            child: Transform.scale(
-              scale: _scale.value,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: cs.primary.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.waves_rounded,
-                        size: 40,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Suiwave',
-                      style: GoogleFonts.nunito(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Your music, your way',
-                      style: GoogleFonts.nunito(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white54,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }

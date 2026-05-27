@@ -10,6 +10,7 @@ todo.md
 pubspec.lock
 build/
 *.iml
+devtools_options.yaml
 
 # Generated code (drift, riverpod)
 *.g.dart
